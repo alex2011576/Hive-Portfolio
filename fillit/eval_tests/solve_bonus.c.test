@@ -1,0 +1,463 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   solve.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jlehtine <jlehtine@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/15 16:56:33 by jlehtine          #+#    #+#             */
+/*   Updated: 2021/12/21 16:28:40 by jlehtine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "fillit.h"
+
+/*
+ *	Splits a tetrimino into lines of 4 bits. 
+ *	The most significant bit from tetrimino is the last line's last bit.
+ *	
+ *									0001
+ *									0001
+ *	0b0000 0011 0001 0001	-->		0011
+ *									0000
+ *
+ * 	INT REPRESENTATION:
+ *									1
+ *									1
+ * 				785			-->		3
+ *									0
+ *	tetrimino = 4x4 binary representation of the whole tetrimino.
+ *
+ *	return: array of 4 bits to represent a line.
+ */
+int	*split_tetrimino_to_lines(int tetrimino)
+{
+	int *lines;
+	int	i;
+
+	lines = (int *)ft_memalloc(sizeof(int) * 4);
+	if (!lines)
+		return (NULL);
+	i = 0;
+	while (tetrimino != 0)
+	{
+		lines[i] = tetrimino & 0b1111;
+		tetrimino >>= 4;
+		i++;
+	}
+	return (lines);
+}
+
+/*
+ *	Goes through the array and frees all the allocated memory.
+ */
+void	free_array(int **arr, size_t len)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < len)
+	{
+		free(arr[i]);
+		arr[i] = NULL;
+		i++;
+	}
+	free(arr);
+}
+
+/*
+ *	Iterates all tetriminos and splits them into lines.
+ *
+ *	tetrimino = list of tetriminos of size len
+ *
+ *	return: an array of tetrimino lines
+ */
+int	**get_list_of_lines(int *tetrimino, size_t len)
+{
+	size_t	i;
+	int		**splitted_tetriminos;
+
+	splitted_tetriminos = (int **)malloc(sizeof(int *) * (len + 1));
+	if (!splitted_tetriminos)
+		return (NULL);
+	i = 0;
+	while (i < len)
+	{
+		splitted_tetriminos[i] = split_tetrimino_to_lines(tetrimino[i]);
+		if (!splitted_tetriminos[i])
+		{
+			free_array(splitted_tetriminos, i);
+			return (NULL);
+		}
+		i++;
+	}
+	splitted_tetriminos[i] = NULL;
+	return (splitted_tetriminos);
+}
+
+/*
+ *	Tries to fit one line from the tetrimino to one line of the map.
+ *	NOTE: Origin of the tetrimino is on the right side.
+ *			1111
+ *			   ^
+ *			origin
+ *
+ *	x_offset = 	times to left shift the line.
+ *
+ *	return:		1 or 0 depending on whether the line 
+ *				can be placed into the map.
+ */
+int	try_line(int line, int map, int x_offset, int map_size)
+{
+	if (x_offset < 0)
+		return (0);
+	line <<= x_offset;
+	return (!(line & map) && line < (1 << map_size));
+}
+
+/*
+ *	Removes a tetrimino from the map.
+ */
+void	remove_shape_from_map(int *lines, int *map, t_coords coords, int map_size)
+{
+	int	i;
+	int	x_offset;
+
+	x_offset = map_size - coords.x - 1;
+	i = 0;
+	while (i < 4)
+	{
+		if (!lines[i])
+			return ;
+		map[coords.y + i] ^= lines[i] << x_offset;
+		i++;
+	}
+}
+
+/*
+ *	Adds a tetrimino to the map.
+ */
+void	add_shape_to_map(int *lines, int *map, t_coords coords, int map_size)
+{
+	int	i;
+	int	x_offset;
+
+	x_offset = map_size - coords.x - 1;
+	i = 0;
+	while (i < 4)
+	{
+		if (!lines[i])
+			return ;
+		map[coords.y + i] |= lines[i] << x_offset;
+		i++;
+	}
+}
+
+/*
+ *	Iterates all the lines of the terimino.
+ *	Checks if the tetrimino can be placed to the map.
+ *
+ *	return:	1 or 0 depending on whether the 
+ *			tetrimino can be placed on the map.
+ */
+int	try_shape(int *lines, int *map, t_coords coords, int map_size)
+{
+	int	i;
+
+	i = 0;
+	while (i < 4)
+	{
+		if (!lines[i])
+			return (1);
+		if (coords.y + i >= map_size || coords.y + i < 0)
+			return (0);
+		if (!try_line(lines[i], map[coords.y + i], map_size - coords.x - 1, map_size))
+			return (0);
+		i++;
+	}
+	return (1);
+}
+/*
+ *	Prints the map, including all zeros.
+ */
+void	print_map(int map_size, int *map)
+{
+	int		i;
+	size_t	len;
+	char	*str;
+
+	i = 0;
+//	printf("mapsize= %d\n", map_size);
+	while (i < map_size)
+	{
+//		printf("map: %d\n", map[i]);
+		str = ft_itoa_base(map[i], 2);
+//		printf("string: %s\n", str);
+		len = ft_strlen(str);
+		while (len < (size_t)map_size)
+		{
+			write(1, "0", 1);
+			len++;
+		}
+		ft_putendl(str);
+		ft_strdel(&str);
+		i++;
+	}
+}
+
+int	reverse_bits(int x, int bit_count)
+{
+	int temp;
+
+	temp = 0;
+	while (bit_count--)
+	{
+		temp <<= 1;
+		temp |= x & 1;
+		x >>= 1;
+	}
+	return (temp);
+}
+
+int	cmp_solution(t_mapinfo mapinfo, int *best_map)
+{
+	int		i;
+	int		res;
+
+	ft_putendl("current:");
+	print_map(mapinfo.map_size, mapinfo.map);
+	ft_putendl("best:");
+	print_map(mapinfo.map_size, best_map);
+	exit(1);
+	res = 1;
+	if (best_map[0])
+	{
+		i = mapinfo.map_size - 1;
+		while (i >= 0)
+		{
+			if (mapinfo.map[i] || best_map[i])
+			{
+				int best;
+				int current;
+				best = reverse_bits(best_map[i], 4);
+				current = reverse_bits(mapinfo.map[i], 4);
+//				printf("best: %d\ncurrent: %d\n", best, current);
+				res = current - best;
+				if (res < 0)
+					break ;
+				else if (res > 0)
+					return (0);
+			}
+			i--;
+		}
+	}
+	if (res == 0)
+		return (0);
+	i = 0;
+	while (i < mapinfo.map_size)
+	{
+		best_map[i] = mapinfo.map[i];
+		i++;
+	}
+	return (1);
+}
+
+
+static int g_test;
+
+int	find_solution(int **tetriminos, t_tetrimino_info *tetrimino_info, t_mapinfo *mapinfo, int *best_map)
+{
+	static int	index;
+	t_coords	coords;
+	int			ret;
+	g_test++;
+	if (tetriminos[index] == NULL)
+		return (cmp_solution(*mapinfo, best_map));
+	ret = 0;
+	coords.y = 0;
+	while (coords.y < mapinfo->map_size)
+	{
+		coords.x = 0;
+		while (coords.x < mapinfo->map_size)			
+		{
+			if (try_shape(tetriminos[index], mapinfo->map, coords, mapinfo->map_size))
+			{
+				add_shape_to_map(tetriminos[index], mapinfo->map, coords, mapinfo->map_size);
+				if (index == 0)
+					printf("%d index: %d\tx:%d y:%d\n", g_test, index, coords.x, coords.y);
+//				print_map(mapinfo->map_size, mapinfo->map);
+//				printf("\n");
+				index++;
+				if (find_solution(tetriminos, tetrimino_info, mapinfo, best_map))
+				{
+					tetrimino_info[index - 1].coords = coords;
+					ret = 1;
+				}
+				index--;
+				remove_shape_from_map(tetriminos[index], mapinfo->map, coords, mapinfo->map_size);
+			}
+			coords.x++;
+		}
+		coords.y++;
+	}
+//	printf("%d index: %d\n", g_test, index);
+	return (ret);
+}
+
+t_tetrimino_info	*fill_ids(size_t len)
+{
+	t_tetrimino_info	*tetrimino_info;
+	size_t				i;
+
+	i = 0;
+	tetrimino_info = (t_tetrimino_info *)ft_memalloc(sizeof(t_tetrimino_info) * (len + 1));
+	while (i < len)
+	{
+		tetrimino_info[i].id = 'A' + i;
+		tetrimino_info[i].coords.x = 0;
+		tetrimino_info[i].coords.y = 0;
+		i++;
+	}
+	tetrimino_info[i].id = '0';
+	return (tetrimino_info);
+}
+
+void	*ft_reallocf(void *ptr, size_t size)
+{
+	void *new;
+
+	new = ft_memalloc(size);
+	if (!new)
+	{
+		free(ptr);
+		return (NULL);
+	}
+	ft_memcpy(new, ptr, size);
+	free(ptr);
+	return (new);
+}
+
+void	bmap_to_str(char *str, int tetrimino, t_tetrimino_info info, t_mapinfo mapinfo)
+{
+	int y;
+	int x;
+
+	y = 0;
+	x = 0;
+	while (tetrimino != 0)
+	{
+		if (x > 3)
+		{
+			y++;
+			x = 0;
+		}
+		if (tetrimino & 1)
+			str[(info.coords.y + y) * mapinfo.map_size - x + info.coords.x] = info.id;
+		tetrimino >>= 1;
+		x++;
+	}
+}
+
+void	print_char_map(char *str, t_mapinfo mapinfo)
+{
+	int i;
+
+	i = 0;
+	while (i < mapinfo.map_size)
+	{
+		write(1, &str[i * mapinfo.map_size], mapinfo.map_size);
+		i++;
+		ft_putchar('\n');
+	}
+}
+
+void	write_to_char_map(t_tetrimino_info *tetrimino_info, t_mapinfo mapinfo, int *tetriminos, size_t len)
+{
+	size_t		i;
+	char		*str;
+
+	str = ft_memalloc(sizeof(char) * (mapinfo.map_size * mapinfo.map_size + 1));
+	if (!str)
+		return ;
+	ft_memset(str, '.', mapinfo.map_size * mapinfo.map_size);
+	i = 0;
+	while (i < len)
+	{
+		bmap_to_str(str, tetriminos[i], tetrimino_info[i], mapinfo);
+		i++;
+	}
+	print_char_map(str, mapinfo);
+	ft_strdel(&str);
+}
+
+int	solve(int *tetriminos, size_t len)
+{
+	t_mapinfo 			mapinfo;
+	int					**tetriminos_lines;
+//	t_coords			coords;
+	t_tetrimino_info	*tetrimino_info;
+	int					*best_map;
+
+	mapinfo.map_size = ft_sqrt(len * 4);
+//	coords.x = 0;
+//	coords.y = 0;
+	mapinfo.map = (int *)ft_memalloc(sizeof(int) * mapinfo.map_size);
+	//tetrimino_info = (tetrimino_info *)malloc(sizeof(tetrimino_info) * mapinfo.map_size);
+	if (!mapinfo.map)
+		return (-1);
+	printf("====\n");
+	tetriminos_lines = get_list_of_lines(tetriminos, len);
+	if (!tetriminos_lines)
+		return (-1);
+	tetrimino_info = fill_ids(len);
+	best_map = (int *)ft_memalloc(sizeof(int) * mapinfo.map_size);
+	if (!best_map)
+		return (-1);
+	while (!find_solution(tetriminos_lines, tetrimino_info, &mapinfo, best_map))
+	{
+		printf("Wasn't able to fit tetriminos.\nIncreasing map's size from %d to %d\n", mapinfo.map_size, mapinfo.map_size + 1);
+		printf("best %p - %p \t->\t ", best_map, best_map + mapinfo.map_size);
+		mapinfo.map_size++;
+		best_map = (int *)ft_reallocf(best_map, mapinfo.map_size * sizeof(int));
+		printf("%p - %p\n", best_map, best_map + mapinfo.map_size);
+		printf("map %p - %p \t->\t ", mapinfo.map, mapinfo.map + mapinfo.map_size - 1);
+		mapinfo.map = (int *)ft_reallocf(mapinfo.map, mapinfo.map_size * sizeof(int));
+		printf("%p - %p\n", mapinfo.map, mapinfo.map + mapinfo.map_size);
+	}
+	//print_map(mapinfo.map_size, best_map);
+	write_to_char_map(tetrimino_info, mapinfo, tetriminos, len);
+
+
+
+	// EVERYTHING IN COMMENTS IS PURELY FOR TESTING
+	// THIS IS WHERE WE WILL IMPLEMENT OUR RECURSIVE FUNCTION
+	
+	/*coords.x = 0;
+	coords.y = 0;
+	while (coords.y < map_size)
+	{
+		coords.x = 0;
+		while (coords.x < map_size)
+		{
+			if (try_shape(tetriminos_lines[1], map, coords, map_size))
+				add_shape_to_map(tetriminos_lines[1], map, coords, map_size);
+			coords.x++;
+		}
+		coords.y++;
+	}
+	print_map(map_size, map);
+	coords.x = 6;
+	coords.y = 2;
+	if (try_shape(tetriminos_lines[2], map, coords, map_size))
+		add_shape_to_map(tetriminos_lines[2], map, coords, map_size);
+	printf("====\n");
+	print_map(map_size, map);
+	coords.x = 1;
+	coords.y = 0;
+	remove_shape_from_map(tetriminos_lines[1], map, coords, map_size);
+	printf("====\n");
+	print_map(map_size, map);*/
+	free_array(tetriminos_lines, len);
+	ft_memdel((void **)&mapinfo.map);
+	return (mapinfo.map_size);
+}
