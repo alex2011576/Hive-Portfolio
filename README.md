@@ -7,7 +7,7 @@
 
 4. **Fillit** (finished 28.12.2021 {2-member team, the program arranges tetreminos in the smallest possible square using bitwise operations})
 
-5. **GameJam** (finished 30.01.2022 {48 hours, 3-member team, "runner" game coded in JS, no one in the team had any JS experience before})
+5. **GameJam** (finished 30.01.2022 {48 hours, 3-member team, "runner" game coded in JS, no one on the team had any JS experience before})
 
 author: 
 Aleksei Shatalov || ashatalo
