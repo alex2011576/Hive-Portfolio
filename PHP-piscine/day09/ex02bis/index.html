@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>To Do</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+	<script src="todo.js"></script>
+    <style>
+        body {
+            background-color: black;
+            width: 70%;
+            margin: 30% auto;
+        }
+        #ft_list {
+            display: flex;
+            font-family: sans-serif;
+            font-weight: bold;
+            color:chartreuse;
+            border-style: dashed;
+            border-width: 1vw;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: center;
+            align-items: flex-start;
+        }
+        #ft_list div{
+            margin: 10px;
+            width:100%;
+            border-bottom: chartreuse;
+            border-bottom-width: 0.1vw;
+            border-bottom-style: dotted;
+            word-wrap: break-word;
+            font-size: 2vw;
+        }
+        button {
+            float: right;
+            font-size: 3vw;
+            /* color: black; */
+            background-color: chartreuse;
+            margin-top: 1.5vw;
+        }
+        </style>
+</head>
+<body>
+	<div id="ft_list"></div>
+	<button id="new" name="New" >New</button>
+</body>
+</html>

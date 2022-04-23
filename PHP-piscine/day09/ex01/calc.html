@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calc</title>
+    <script> 
+        setInterval(alert_user, 30000);
+
+        function alert_user(){
+            alert("Please, use me...");
+        }
+
+
+        function calculateForm() {
+            var left = document.getElementById('left').value;
+            var right = document.getElementById('right').value;
+            var op = document.getElementById('op').value;
+            var l = Number(left);
+            var r = Number(right);
+
+
+            if (!isNumber(left) || !isNumber(right) || !numIsValid(left, right)) {
+                alert("Error :(");
+                return false;
+            }
+            switch (op) {
+                case ('add'):
+                    result(l + r);
+                    break;
+                case ('mul'):
+                    result(l * r);
+                    break;
+                case ('div'):
+                    if (r === 0) {
+                        result("It’s over 9000!");
+                    } else {
+                        result(l / r);
+                    }
+                    break;
+                case ('mod'):
+                    if (r === 0) {
+                        result("It’s over 9000!");
+                    } else {
+                        result(l % r);
+                    }
+                    break;
+                case ('min'):
+                    result(l - r);
+                    break;
+                default:
+                    result("No operator");
+                    break;
+            }
+        }
+        
+        function isNumber(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+        function numIsValid(l, r) {
+                return l == parseInt(l, 10) && l >= 0 && r == parseInt(r, 10) && r >= 0;
+        }
+
+        function result(res) {
+            console.log(res);
+            alert(res);
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div>
+            <div></div>
+            <h1>Calculator</h1>
+            <form id="calc">
+                <input type="text" id="left">
+                <select id="op">
+                    <option value="add">+</option>
+                    <option value="min">-</option>
+                    <option value="mul">*</option>
+                    <option value="div">/</option>
+                    <option value="mod">%</option>
+                </select>
+                <input type="text" id="right">
+                <input type="submit" id="submit" value="Try me!" onclick="calculateForm()">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

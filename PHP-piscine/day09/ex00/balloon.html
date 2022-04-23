@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Balloon</title>
+    <style>
+        #balloon {
+            width: 200px;
+            height: 200px;
+            margin:auto;
+            margin-top: 500px;
+            background-color: red;
+            border-radius: 100%;
+            cursor: zoom-in;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="balloon"></div>
+    <script>
+        var color = {0: '#ff0000', 1: '#00ff00', 2: '#0000ff'};
+        var i = 0;
+        var balloon = document.getElementById('balloon');
+        balloonWidth = balloon.clientWidth;
+        balloonHeight = balloon.clientHeight;
+        var click = false;
+
+
+        balloon.addEventListener( "click", pumpBalloon );
+        balloon.addEventListener( "mouseleave", shrinkBalloon );
+
+        function pumpBalloon() {
+            if (balloon.clientHeight < 420) {
+                balloonHeight += 10;
+                balloonWidth +=10;
+            } else {
+                balloonHeight = 200;
+                balloonWidth = 200;
+            }
+            balloon.style.height = balloonHeight + 'px';
+            balloon.style.width = balloonWidth + 'px';
+            i++;
+            if(i > 2)
+                i = 0;
+            balloon.style.backgroundColor = color[i];
+            click = true;
+	    }
+        function shrinkBalloon() {
+		    if (click == false) {
+		    	i--;
+		    	if (i == -1)
+		    		i = 2
+		    	if (balloon.clientHeight > 200) {
+		    		balloonHeight -= 5;
+		    		balloonWidth -=5;
+		    	} else {
+		    		balloonHeight = 200;
+		    		balloonWidth = 200;
+		    	}
+		    	balloon.style.height = balloonHeight + 'px';
+		    	balloon.style.width = balloonWidth + 'px';
+		    	balloon.style.backgroundColor = color[i];
+	        }
+	        click = false;
+	    }
+
+    </script>
+</body>
+
+</html>

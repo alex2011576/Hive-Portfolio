@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Balloon</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <style>
+        #balloon {
+            width: 200px;
+            height: 200px;
+            margin:auto;
+            margin-top: 500px;
+            background-color: red;
+            border-radius: 100%;
+            cursor: zoom-in;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="balloon"></div>
+    <script>
+        $(document).ready(function(){
+            color = {0: '#ff0000', 1: '#00ff00', 2: '#0000ff'};
+            i = 0;
+            click = false;
+            balloon = $('#balloon');
+            balloon.click(pumpBalloon);
+            balloon.mouseleave(shrinkBalloon);
+        });
+        
+        function pumpBalloon() {
+            if (balloon.width() < 420) {
+                balloon.width(balloon.width() + 10 + 'px');
+                balloon.height(balloon.height() + 10 + 'px');
+            } else {
+                balloon.width(200 + 'px');
+                balloon.height(200 + 'px');
+            }
+            i++;
+            if(i > 2)
+                i = 0;
+            balloon.css("background", color[i]);
+            click = true;
+	    }
+        function shrinkBalloon() {
+		    if (click == false) {
+		    	i--;
+		    	if (i == -1)
+		    		i = 2
+		    	if (balloon.height() > 200) {
+                    balloon.width(balloon.width()  - 5 + 'px');
+                    balloon.height(balloon.height() - 5 + 'px');
+		    	} else {
+                    balloon.width(200 + 'px');
+                    balloon.height(200 + 'px');
+		    	}
+		    	balloon.css("background", color[i]);
+	        }
+	        click = false;
+	    }
+
+    </script>
+</body>
+
+</html>

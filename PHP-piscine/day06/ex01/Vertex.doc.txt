@@ -1,0 +1,41 @@
+
+<- Vertex ----------------------------------------------------------------------
+This Vertex class simply offers encapsulation of 
+x, y, z, w coordinates and one color. 
+
+An instance can be contructed from distinct (x, y, z, w, color) constitutives:
+new Vertex( array( 'x' => 0.0, 'y' => 0.0, 'z' => 0.0, 'color' => $color ); );;
+
+x, y, z: coordinates are MANDATORY and should be presented in numeric form.
+w: is optional and by default is set to 1.0.
+color: is optional, by default is worth a new instance of the color white.
+If user provides color value, the value MUST be an instance of 
+the Color Class from the previous exercise.
+All coordinates and color are private to the class and can be read/written 
+with provided accessories.
+Any other use is undefined behaviour!
+
+The class provides reading and writing accessors for the 
+corresponding attributes:
+
+Vertex   getX(); / getY();  / getZ(); / 
+getW();  / getColor();
+Reads values of the corresponding attributes.
+
+Vertex   setX( $new_value ); / setY( $new_value );  / setZ( $new_value ); / 
+setW( $new_value );  / setColor( Color $new_value );
+Writes new values to the corresponding attributes.
+
+The class provides the following public methods :
+
+Vertex::doc(); 
+is a static method returns the documentation of the class in a string.
+
+Accessible attributes:
+
+Vertex::$verbose
+is a Boolean static attribute provided to control the displays 
+related to the use of the Class. This attribute is initially False. 
+User should set verbose to True to see displays:
+Vertex::$verbose = False;
+---------------------------------------------------------------------- Vertex ->
