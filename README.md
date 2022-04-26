@@ -9,5 +9,7 @@
 
 5. **GameJam** (finished 30.01.2022 {48 hours, 3-member team, "runner" game coded in JS, no one on the team had any JS experience before})
 
+6. **PHP-Piscine** (finished 23.04.2022 {2 weeks of intense PHP bootcamp, where I got accustomed with various WEB and OOP technologies and concepts in PHP, HTML, CSS, JS and jQuery, mySQL, MAMP. In particular, we worked with HTTP headers and transfer methods, sessions, cookies, cache to solve various problems like building e-commerce store, and used oop to try recreating some of the OpenGL services})
+
 author: 
 Aleksei Shatalov || ashatalo
